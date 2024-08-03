@@ -1,0 +1,3 @@
+#: src/index.tsx:807
+msgid "Play Splendor online with others. Enter a game name or use the suggested game name to start a game."
+msgstr "Play Splendor online with others. Enter a game name or use the suggested game name to start a game."

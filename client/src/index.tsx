@@ -804,7 +804,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
       if (this.state.lobby) {
         return <div className="lobby">
           <div className="main-title">Splendor</div>
-          <div className="desc">Play Splendor online with others. Enter a game name or use the suggested game name to start a game.</div>
+          <div className="desc">_("Play Splendor online with others. Enter a game name or use the suggested game name to start a game.")</div>
           <div className="name">
             <input className="game-name" type="text" onChange={this.nameChange} onKeyPress={this.keyPress} value={this.state.gameName} />
             <button onClick={this.createGame} className="create-game">Create Game</button>
