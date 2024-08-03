@@ -1,0 +1,6 @@
+"commit_message": "Fix: New translations %original_file_name% from Crowdin"
+"append_commit_message": false
+
+files:
+  - source: /client/src/locale/en/index.po
+    translation: /client/src/locale/%two_letters_code%/%original_file_name%
