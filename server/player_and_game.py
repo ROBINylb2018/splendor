@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import random
 import uuid
 import time
@@ -71,9 +72,11 @@ class Player(object):
 
     def buy(self, uuid):
         if self.acted:
-            return {'error': "You've already used your action"}
+            # return {'error': "You've already used your action"}
+            return {'error': "您已经使用过您的行动"}
         if self.taken:
-            return {'error': "You've already taken gems, cheater"}
+            # return {'error': "You've already taken gems, cheater"}
+            return {'error': "您已经拿过宝石了，老六！"}
         owed = 0
 
         card = find_uuid(uuid, self.reserved)
@@ -121,7 +124,8 @@ class Player(object):
 
     def discard(self, color):
         if not self.gems[color]:
-            return {'error': "You don't have any of that gem"}
+            # return {'error': "You don't have any of that gem"}
+            return {'error': "您没有这种宝石"}
         self.gems[color] -= 1
         self.game.gems[color] += 1
         self.game.log("{0} discarded 1 {1}".format(self.name, COLOR_DICT[color]))
@@ -131,15 +135,18 @@ class Player(object):
 
     def reserve(self, uuid):
         if len(self.reserved) > 2:
-            return {'error': "Already have 3 cards in reserve"}
+            # return {'error': "Already have 3 cards in reserve"}
+            return {'error': "已经预留了3张卡片"}
         if self.game.gems['*'] > 0:
             if self.total_gems() > 9:
-                return {'error': "Return a gem before reserving a card"}
+                # return {'error': "Return a gem before reserving a card"}
+                return {'error': "预留卡片前请先归还一张宝石"}
             self.game.gems['*'] -= 1
             self.gems['*'] += 1
         if uuid in LEVELS:
             if not self.game.decks[uuid]:
-                return {'error': "No more cards in pile to reserve"}
+                # return {'error': "No more cards in pile to reserve"}
+                return {'error': "没有更多卡片可供预留"}
             self.game.log("{0} reserved a {1} card".format(self.name, uuid))
             self.reserved.append(self.game.decks[uuid].pop())
             return {}
@@ -154,20 +161,34 @@ class Player(object):
         return {'error': "No such uuid"}
 
     def take(self, color):
+        # if self.acted:
+        #     return {'error': "You've already used your action"}
+        # if color not in COLORS:
+        #     return {'error': "That's not a valid color"}
+        # if not self.game.gems[color]:
+        #     return {'error': "No gems remaining"}
+        # if len(self.taken) > 2:
+        #     return {'error': "Cannot take more than 3 gems"}
+        # if len(self.taken) > 1 and color in self.taken:
+        #     return {'error': "Cannot take the same color on the 3rd gem"}
+        # if len(self.taken) == 1 and color in self.taken and self.game.gems[color] < 3:
+        #     return {'error': "Cannot take 2 gems from the same pile of less than 4"}
+        # if self.total_gems() > 9:
+        #     return {'error': "Already have 10 gems"}
         if self.acted:
-            return {'error': "You've already used your action"}
+            return {'error': "您已经使用过您的行动"}
         if color not in COLORS:
-            return {'error': "That's not a valid color"}
+            return {'error': "这不是一个有效的颜色"}
         if not self.game.gems[color]:
-            return {'error': "No gems remaining"}
+            return {'error': "没有剩余的宝石"}
         if len(self.taken) > 2:
-            return {'error': "Cannot take more than 3 gems"}
+            return {'error': "您不能拿超过3个宝石"}
         if len(self.taken) > 1 and color in self.taken:
-            return {'error': "Cannot take the same color on the 3rd gem"}
+            return {'error': "您选三个宝石时，不能拿相同颜色的宝石"}
         if len(self.taken) == 1 and color in self.taken and self.game.gems[color] < 3:
-            return {'error': "Cannot take 2 gems from the same pile of less than 4"}
+            return {'error': "您不能从少于4个宝石的堆中拿2个相同颜色的宝石"}
         if self.total_gems() > 9:
-            return {'error': "Already have 10 gems"}
+            return {'error': "您已经拥有10个宝石"}
         self.game.gems[color] -= 1
         self.gems[color] += 1
         self.taken.append(color)
@@ -179,11 +200,14 @@ class Player(object):
     def noble_visit(self, uuid):
         noble = find_uuid(uuid, self.game.nobles)
         if not noble:
-            return {'error': "No such noble"}
+            # return {'error': "No such noble"}
+            return {'error': "没有这位贵族"}
         if not self.check_noble(noble):
-            return {'error': "Cannot take that noble"}
+            # return {'error': "Cannot take that noble"}
+            return {'error': "无法获取该贵族"}
         if self.visited:
-            return {'error': "Cannot accommodate two nobles on the same turn"}
+            # return {'error': "Cannot accommodate two nobles on the same turn"}
+            return {'error': "一个回合内无法容纳两位贵族"}
         self.visited = True
         self.nobles.append(noble)
         self.game.nobles.remove(noble)

@@ -284,7 +284,8 @@ let globalShowError = (resp: ServerResponse) => { return false }
       })
 
       const you = (game.props.pid === pid ? " you selected" : "")
-      const youName = (game.props.pid === pid ? " (you)" : "")
+      // const youName = (game.props.pid === pid ? " (you)" : "")
+      const youName = (game.props.pid === pid ? " (你)" : "")
       const gems = mapColors(this.props.gems, game, game.discard, 'X', pid)
       const reserved = this.props.reserved ? this.props.reserved.map((card) => {
         return (
@@ -426,7 +427,8 @@ let globalShowError = (resp: ServerResponse) => { return false }
         });
 
         if (r.state.winner !== null && this.state.phase != "postgame") {
-          alert(r.state.players[r.state.winner].name + " wins!");
+          // alert(r.state.players[r.state.winner].name + " wins!");
+          alert(r.state.players[r.state.winner].name + " 获得胜利！！!");
           this.setState({phase: "postgame"});
         }
 
@@ -459,7 +461,8 @@ let globalShowError = (resp: ServerResponse) => { return false }
     }
 
     discard = (color: string) => {
-      if (confirm("Are you sure you want to discard a gem?")) {
+      // if (confirm("Are you sure you want to discard a gem?")) {
+      if (confirm("您确定要放弃这个宝石吗？")) {
         this.act('discard', color)
       }
     }
@@ -590,7 +593,8 @@ let globalShowError = (resp: ServerResponse) => { return false }
               </div>
               <div className="reserve-info">
                 <div className="reserve-info-inner">
-                  <div>Click on card to buy, click on </div><div><img className="floppy" src="client/img/floppy.png" /></div><div> to reserve.</div>
+                  {/* <div>Click on card to buy, click on </div><div><img className="floppy" src="client/img/floppy.png" /></div><div> to reserve.</div> */}
+                  <div>点击卡面兑换, 点击 </div><div><img className="floppy" src="client/img/floppy.png" /></div><div>预约卡牌</div>
                 </div>
               </div>
               <div id="gem-area" className="you">
@@ -803,11 +807,14 @@ let globalShowError = (resp: ServerResponse) => { return false }
 
       if (this.state.lobby) {
         return <div className="lobby">
-          <div className="main-title">Splendor</div>
-          <div className="desc">_("Play Splendor online with others. Enter a game name or use the suggested game name to start a game.")</div>
+          {/* <div className="main-title">Splendor</div> */}
+          <div className="main-title">宝石商人</div>
+          {/* <div className="desc">_("Play Splendor online with others. Enter a game name or use the suggested game name to start a game.")</div> */}
+          <div className="desc">输入房间名称或使用推荐房间名称开始在线玩宝石商人游戏。</div>
           <div className="name">
             <input className="game-name" type="text" onChange={this.nameChange} onKeyPress={this.keyPress} value={this.state.gameName} />
-            <button onClick={this.createGame} className="create-game">Create Game</button>
+            {/* <button onClick={this.createGame} className="create-game">Create Game</button> */}
+            <button onClick={this.createGame} className="create-game">创建游戏</button>
           </div>
           <ErrorMsg error={this.state.error} opacity={this.state.errorOpacity} />
         </div>
@@ -817,14 +824,17 @@ let globalShowError = (resp: ServerResponse) => { return false }
         <div id="game">
           <div id="game-title">
             <div className="link">
-              Share this link with friends to join in or watch: <a href=".">{`${document.location.href}`}</a>
+              {/* Share this link with friends to join in or watch: <a href=".">{`${document.location.href}`}</a> */}
+              把这个链接分享给朋友们，让他们加入或关注。: <a href=".">{`${document.location.href}`}</a>
             </div>
             <div className="buttons">
               {!this.state.joined &&
-                <button className="start-game" onClick={() => this.join(this.state.gid, 'join')}>Join Game</button>
+                // <button className="start-game" onClick={() => this.join(this.state.gid, 'join')}>Join Game</button>
+                <button className="start-game" onClick={() => this.join(this.state.gid, 'join')}>加入房间</button>
               }
               {this.state.startKey && this.state.pid == 0 &&
-                <button className="start-game" onClick={this.startGame}>Start Game</button>
+                // <button className="start-game" onClick={this.startGame}>Start Game</button>
+                <button className="start-game" onClick={this.startGame}>开始游戏</button>
               }
             </div>
           </div>

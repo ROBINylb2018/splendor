@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, Response, request, send_from_directory
 from functools import wraps
 from player_and_game import *
@@ -213,6 +214,7 @@ def next(game):
     game = game_manager.game
     if pid != game.active_player_index:
         return {'error': 'Not your turn'}
+        return {'error': '不是你的回合'}
     result = game.next()
     if result == {}:
         game_manager.has_changed()
@@ -241,7 +243,8 @@ def act(game, action, target):
         return {'error': 'Invalid game / pid / uuid'}
     game = game_manager.game
     if pid != game.active_player_index:
-        return {'error': 'Not your turn'}
+        # return {'error': 'Not your turn'}
+        return {'error': '不是你的回合'}
 
     if action == 'take':
         result = game.take(target)
