@@ -4,7 +4,7 @@ services:
     game:
         image: yeka/python:splendor
         ports:
-            - 8000:8000
+            - 65500:8000
         volumes:
             - ./server:/server
             - ./client:/client
