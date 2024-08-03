@@ -94,7 +94,8 @@ class Player(object):
             if self.power(c) < card.cost[c]:
                 owed += card.cost[c] - self.power(c)
                 if owed > self.gems['*']:
-                    return {'error': 'Not enough gems'}
+                    # return {'error': 'Not enough gems'}
+                    return {'error': '没有足够的宝石'}
 
         if card in self.reserved:
             self.reserved.remove(card)
@@ -577,6 +578,9 @@ class Game(object):
         if self.num_players == 4:
             for c in COLORS:
                 self.gems[c] = 7
+        if self.num_players == 5:
+            for c in COLORS:
+                self.gems[c] = 8
         return (player.id, player.uuid)
 
     def rename_player(self, pid, name):

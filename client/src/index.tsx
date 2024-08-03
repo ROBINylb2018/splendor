@@ -622,7 +622,8 @@ let globalShowError = (resp: ServerResponse) => { return false }
             </div>
           </div>
           {this.state.turn >= 0 && this.props.pid >= 0 && this.props.pid < 4 &&
-            <button id={`pass-turn`} onClick={this.nextTurn} style={{ opacity: this.isMyTurn(this.state.turn) ? 1 : 0.3 }}>Pass turn</button>
+            // <button id={`pass-turn`} onClick={this.nextTurn} style={{ opacity: this.isMyTurn(this.state.turn) ? 1 : 0.3 }}>Pass turn</button>
+            <button id={`pass-turn`} onClick={this.nextTurn} style={{ opacity: this.isMyTurn(this.state.turn) ? 1 : 0.3 }}>跳过回合</button>
           }
         </div>
       );
