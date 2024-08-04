@@ -95,7 +95,7 @@ class GameManager(object):
             self.changed[p] = True
 
     def join_game(self):
-        if self.game.num_players >= 6:
+        if self.game.num_players >= MAX_PLAYERS:
             return {'error': 'Already at max players'}
         if self.game.state != 'pregame':
             return {'error': 'Game already in progress'}

@@ -2,6 +2,8 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 import "favico.js"
 
+const MAX_PLAYER = 5
+
 type ColorT = 'w' | 'u' | 'g' | 'b' | 'r'
 type GemT = ColorT | '*'
 
@@ -412,7 +414,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
           this.setState({mode: "normal"});
         }
 
-        if (this.state.selectedPlayer == -1 && this.props.pid < 4) {
+        if (this.state.selectedPlayer == -1 && this.props.pid < MAX_PLAYER) {
           this.setState({selectedPlayer: this.props.pid});
         }
 
@@ -621,7 +623,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
               <input id="chat-inner" type="text" onKeyPress={this.chat}></input>
             </div>
           </div>
-          {this.state.turn >= 0 && this.props.pid >= 0 && this.props.pid < 4 &&
+          {this.state.turn >= 0 && this.props.pid >= 0 && this.props.pid < MAX_PLAYER &&
             // <button id={`pass-turn`} onClick={this.nextTurn} style={{ opacity: this.isMyTurn(this.state.turn) ? 1 : 0.3 }}>Pass turn</button>
             <button id={`pass-turn`} onClick={this.nextTurn} style={{ opacity: this.isMyTurn(this.state.turn) ? 1 : 0.3 }}>跳过回合</button>
           }

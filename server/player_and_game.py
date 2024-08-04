@@ -3,7 +3,7 @@ import random
 import uuid
 import time
 
-MAX_PLAYERS = 4
+MAX_PLAYERS = 5
 COLORS = ('b', 'u', 'w', 'g', 'r')
 LEVELS = ('level1', 'level2', 'level3')
 COLOR_DICT = {
