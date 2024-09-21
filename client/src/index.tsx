@@ -110,8 +110,8 @@ let globalShowError = (resp: ServerResponse) => { return false }
       var cName = color + "chip"
       if (color === '*') cName = "schip"
       return (
-        <div className={"gem " + cName} key={color + "_colors_" + uuid}>
-          <div className="bubble">{gems[color]}</div>
+        <div className={"gem " + cName} key={color + "_colors_" + uuid} onClick={callback.bind(game, color)}>
+          <div className="bubble" onClick={callback.bind(game, color)}>{gems[color]}</div>
           <div className="underlay" onClick={callback.bind(game, color)}>{symbol}</div>
         </div>
       );
@@ -125,6 +125,109 @@ let globalShowError = (resp: ServerResponse) => { return false }
       );
     });
   }
+
+  function padStart(str: string | number, targetLength: number, padString: string = '0'): string {
+    str = String(str); // 将输入转换为字符串
+    while (str.length < targetLength) {
+      str = padString + str;
+    }
+    return str;
+  }
+
+  interface CountDownProps {
+    seconds: number;
+    onCountdownOver: () => void; // 父组件传递的倒计时结束时触发的函数
+    getTurn: ()=> number;
+  }
+
+  const CountDown = React.forwardRef<{ reset: () => void }, CountDownProps>(({ seconds = 0, onCountdownOver, getTurn }, ref) => {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = seconds % 60
+
+    const [paused, setPaused] = React.useState(true);
+    const [over, setOver] = React.useState(false);
+    // time 默认值是一个 object
+    const [time, setTime] = React.useState({
+      hours: h,
+      minutes: m,
+      seconds: s
+    });
+
+    const tick = () => {
+      console.log("ticking")
+      // 暂停，或已结束
+      if (paused || over || getTurn() < 0) return;
+
+      if (time.hours === 0 && time.minutes === 0 && time.seconds <= 10){
+        (document.getElementById("timeout") as HTMLAudioElement).play();
+      }
+
+
+      if (time.hours === 0 && time.minutes === 0 && time.seconds === 0){
+        setOver(true);
+        onCountdownOver();
+      }
+      else if (time.minutes === 0 && time.seconds === 0)
+        setTime({
+          hours: time.hours - 1,
+          minutes: 59,
+          seconds: 59
+        });
+      else if (time.seconds === 0)
+        setTime({
+          hours: time.hours,
+          minutes: time.minutes - 1,
+          seconds: 59
+        });
+      else
+        setTime({
+          hours: time.hours,
+          minutes: time.minutes,
+          seconds: time.seconds - 1
+        });
+    };
+
+    // // 重置
+    // const reset = () => {
+    //   setTime({
+    //     hours: h,
+    //     minutes: m,
+    //     seconds: s
+    //   });
+    //   setPaused(false);
+    //   setOver(false);
+    // };
+
+    React.useImperativeHandle(ref, () => ({
+      reset: () => {
+        (document.getElementById("timeout") as HTMLAudioElement).pause();
+        setTime({
+          hours: h,
+          minutes: m,
+          seconds: s
+        });
+        setPaused(false);
+        setOver(false);
+      },
+      pause: ()=>{
+        setPaused(true);
+      }
+    }));
+
+    React.useEffect(() => {
+      // 执行定时
+      let timerID = setInterval(() => tick(), 1000);
+      // 卸载组件时进行清理
+      return () => clearInterval(timerID);
+    });
+
+    return (
+      <div className="timer">
+        <p>{`当前回合自动跳过倒计时 ${padStart(time.hours.toString(), 2)}:${padStart(time.minutes.toString(), 2)}:${padStart(time.seconds.toString(), 2)}`}</p>
+      </div>
+    );
+  })
 
   class Card extends React.PureComponent<{ card: CardT, game: Game }, {}> {
     render() {
@@ -222,6 +325,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
     reserved: CardT[]
     nreserved: number
     selectedPlayer: number
+    turnTimeout: number
   }
 
   class Player extends React.PureComponent<PlayerProps, { editingName: string | null }> {
@@ -378,7 +482,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
     }
   }
 
-  class Game extends React.PureComponent<{ gid: string, pid: number, uuid: string }, GameState> {
+  class Game extends React.PureComponent<{ gid: string, pid: number, uuid: string, turnTimeout: number }, GameState> {
     state = {
       players: [],
       gems: {},
@@ -397,6 +501,13 @@ let globalShowError = (resp: ServerResponse) => { return false }
       showLog: false,
       chatNotify: false,
     } as GameState
+    countdownRef: React.RefObject<{ reset: () => void }>;
+
+    constructor(props: { gid: string; pid: number; uuid: string; turnTimeout: number } | Readonly<{ gid: string; pid: number; uuid: string; turnTimeout: number }>) {
+      super(props);
+      // 使用 React.createRef() 初始化 ref
+      this.countdownRef = React.createRef();
+    }
 
     isMyTurn = (turn: number) => {
       return (turn == this.props.pid);
@@ -506,9 +617,11 @@ let globalShowError = (resp: ServerResponse) => { return false }
     poll = async () => {
       const resp = await fetch('/poll/' + this.props.gid + this.loginArgs())
       const json = await resp.json()
+      this.handleReset()
       if (!globalShowError(json)) {
         this.updateState(json)
         this.poll()
+
       }
     }
 
@@ -536,6 +649,24 @@ let globalShowError = (resp: ServerResponse) => { return false }
       }
     }
 
+    handleReset = () => {
+      if (this.countdownRef.current) {
+        this.countdownRef.current.reset(); // 调用子组件的 reset 方法
+      }
+    };
+    handleCountdownOver = () => {
+      console.log('倒计时结束！');
+      if(this.isMyTurn(this.state.turn)){
+        this.nextTurn()
+      }
+      // this.handleReset();
+      // 在这里执行你需要的逻辑，例如展示提示或触发某个事件
+    };
+
+    handleGetTurn = () =>{
+      return this.state.turn
+    }
+
     render() {
       var players = this.state.players.map((player) => {
         return (
@@ -543,6 +674,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
             selectedPlayer={this.state.selectedPlayer}
             key={player.uuid}
             pid={player.id}
+            turnTimeout={this.props.turnTimeout}
             name={player.name}
             points={player.score}
             game={this}
@@ -604,6 +736,12 @@ let globalShowError = (resp: ServerResponse) => { return false }
               </div>
             </div>
             <div id="player-area">
+              <CountDown
+                seconds={this.props.turnTimeout}
+                ref={this.countdownRef}
+                onCountdownOver={this.handleCountdownOver} // 倒计时结束时触发此回调
+                getTurn={this.handleGetTurn}
+              />
               {players}
             </div>
           </div>
@@ -649,6 +787,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
     gid: string
     error: string | null
     errorOpacity: number
+    turnTimeout: number
   }
 
   class GameCreator extends React.PureComponent<{}, GameCreatorState> {
@@ -663,6 +802,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
       gameName: '',
       errorOpacity: 0,
       error: null,
+      turnTimeout: 30
     } as GameCreatorState
 
     creating = false
@@ -690,6 +830,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
         pid: json.id,
         uuid: json.uuid,
         gid: game,
+        turnTimeout: json.turnTimeout,
       })
       this.save()
     }
@@ -724,7 +865,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
       if (this.creating) return
       this.creating = true
       const gameName = this.state.gid === '' ? this.state.gameName : this.state.gid
-      const resp = await fetch(`/create/${gameName}`, { method: "POST" })
+      const resp = await fetch(`/create/${gameName}`, { method: "POST", headers: {'Content-Type': 'application/json'}, body: JSON.stringify({turnTimeout: this.state.turnTimeout }) })
       const json = await resp.json()
 
       if (this.showError(json)) return
@@ -797,6 +938,10 @@ let globalShowError = (resp: ServerResponse) => { return false }
       this.setState({ gameName: e.target.value })
     }
 
+    timeoutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      this.setState({ turnTimeout: Number(e.target.value) })
+    }
+
     keyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") this.createGame()
     }
@@ -817,7 +962,17 @@ let globalShowError = (resp: ServerResponse) => { return false }
           <div className="name">
             <input className="game-name" type="text" onChange={this.nameChange} onKeyPress={this.keyPress} value={this.state.gameName} />
             {/* <button onClick={this.createGame} className="create-game">Create Game</button> */}
-            <button onClick={this.createGame} className="create-game">创建游戏</button>
+            {/* <button onClick={this.createGame} className="create-game">创建游戏</button> */}
+          </div>
+          <div className="desc">输入回合超时时长，玩家超时未操作则自动跳过回合，输入0禁用自动跳过。</div>
+          <div className="timeout">
+            <input className="game-name" type="number" onChange={this.timeoutChange} onKeyPress={this.keyPress} value={this.state.turnTimeout} />
+          </div>
+          <div className="desc">
+          </div>
+          <div className="button">
+            {/* <button onClick={this.createGame} className="create-game">Create Game</button> */}
+            <button onClick={this.createGame} className="create-game-button">创建游戏</button>
           </div>
           <ErrorMsg error={this.state.error} opacity={this.state.errorOpacity} />
         </div>
@@ -842,7 +997,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
             </div>
           </div>
           {this.state.pid >= 0 && this.state.gid && this.state.uuid &&
-            <Game key={this.state.pid} gid={this.state.gid} pid={this.state.pid} uuid={this.state.uuid} />
+            <Game key={this.state.pid} gid={this.state.gid} pid={this.state.pid} uuid={this.state.uuid} turnTimeout={this.state.turnTimeout} />
           }
           <ErrorMsg error={this.state.error} opacity={this.state.errorOpacity} />
         </div>

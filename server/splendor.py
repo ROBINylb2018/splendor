@@ -16,6 +16,8 @@ client_dir = os.path.join(os.getcwd(), 'client')
 words = []
 num_created = 0
 
+DEFAULT_TURN_TIMEOUT = 30
+
 def json_response(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -24,7 +26,7 @@ def json_response(f):
     return decorated_function
 
 class GameManager(object):
-    def __init__(self, name):
+    def __init__(self, name, turn_timeout=DEFAULT_TURN_TIMEOUT):
         global game_map
 
         self.uuid = name
@@ -36,6 +38,8 @@ class GameManager(object):
         self.ended = {}
         self.created = time.time()
         self.started = False
+
+        self.turn_timeout = turn_timeout
 
     def dict(self):
         return {
@@ -105,7 +109,7 @@ class GameManager(object):
         self.ended[pid] = False
         self.has_changed()
 
-        return {'id': pid, 'uuid': uuid}
+        return {'id': pid, 'uuid': uuid, 'turnTimeout': self.turn_timeout}
 
     def spectate_game(self):
         pid, uuid = self.game.add_spectator()
@@ -160,9 +164,12 @@ def validate_player(game):
 def create_game(game):
     global num_created
 
+    data = request.get_json()
+    turn_timeout = data.get('turnTimeout')
+
     if game in game_map:
         return {'result': {'error': 'Game already exists, try another name'}}
-    new_game = GameManager(game)
+    new_game = GameManager(game, turn_timeout)
     num_created += 1
     return {'game': new_game.uuid, 'start': new_game.starter, 'state': new_game.game.dict()}
 
@@ -350,4 +357,4 @@ if __name__ == '__main__':
         pass
 
     signal.signal(signal.SIGHUP, save_and_exit)
-    app.run(host='0.0.0.0', port=8000, threaded=True)
+    app.run(host='0.0.0.0', port=8000, threaded=True, debug=True)

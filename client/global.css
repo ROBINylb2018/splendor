@@ -7,6 +7,11 @@ body {
   width: 100%;
 }
 
+.timer{
+  font-style: none;
+  -webkit-text-fill-color: black;
+}
+
 a {
   color: #222;
   font-weight: bold;
@@ -29,7 +34,7 @@ a {
 
 .desc {
   font-weight: 100;
-  width: 500px;
+  width: 600px;
   margin-top: 40px;
 }
 
@@ -39,6 +44,10 @@ a {
 }
 
 .name {
+  margin-top: 40px;
+}
+
+.timeout {
   margin-top: 40px;
 }
 
@@ -94,6 +103,11 @@ a {
   top: 1px;
 }
 
+.create-game-button {
+  position: relative;
+  top: 1px;
+}
+
 .underline {
   text-decoration: underline;
 }
@@ -103,7 +117,7 @@ button:hover {
 }
 
 button {
-  font-style: italic;
+  /* font-style: italic; */
   font-weight: bold;
   font-family: Georgia, cursive;
   border: 2px solid black;
@@ -819,7 +833,7 @@ button {
 #log-box {
   width: 500px;
   height: 500px;
-  right: 280px;
+  left: 20px;
 }
 
 #chat-box {
