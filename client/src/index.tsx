@@ -85,6 +85,7 @@ interface GameState extends GameT {
   showLog: boolean
   chat: ChatT[]
   chatNotify: boolean
+  countdownTurn: number
 }
 
 interface ServerResponse {
@@ -500,6 +501,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
       showChat: false,
       showLog: false,
       chatNotify: false,
+      countdownTurn: -1
     } as GameState
     countdownRef: React.RefObject<{ reset: () => void }>;
 
@@ -617,11 +619,15 @@ let globalShowError = (resp: ServerResponse) => { return false }
     poll = async () => {
       const resp = await fetch('/poll/' + this.props.gid + this.loginArgs())
       const json = await resp.json()
-      this.handleReset()
+
       if (!globalShowError(json)) {
         this.updateState(json)
-        this.poll()
 
+        if(this.state.turn !== this.state.countdownTurn){
+          this.handleReset()
+        }
+
+        this.poll()
       }
     }
 
