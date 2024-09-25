@@ -86,6 +86,7 @@ interface GameState extends GameT {
   chat: ChatT[]
   chatNotify: boolean
   countdownTurn: number
+  turnTimeout: number
 }
 
 interface ServerResponse {
@@ -96,6 +97,7 @@ interface ServerResponse {
   result: {
     error?: string
   }
+  turnTimeout: number
 }
 
 let globalShowError = (resp: ServerResponse) => { return false }
@@ -501,7 +503,8 @@ let globalShowError = (resp: ServerResponse) => { return false }
       showChat: false,
       showLog: false,
       chatNotify: false,
-      countdownTurn: 0
+      countdownTurn: 0,
+      turnTimeout: 30,
     } as GameState
     countdownRef: React.RefObject<{ reset: () => void }>;
 
@@ -509,6 +512,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
       super(props);
       // 使用 React.createRef() 初始化 ref
       this.countdownRef = React.createRef();
+      this.setState({turnTimeout: this.props.turnTimeout})
     }
 
     isMyTurn = (turn: number) => {
@@ -559,6 +563,10 @@ let globalShowError = (resp: ServerResponse) => { return false }
             }
           }
           this.setState({ chat: r.chat });
+        }
+
+        if(r.turnTimeout) {
+          this.setState({turnTimeout: r.turnTimeout})
         }
 
         for (const scroller of document.getElementsByClassName("scroller")) {
@@ -617,7 +625,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
     }
 
     poll = async () => {
-      console.log("turn:", this.state.turn, "countdownTurn:", this.state.countdownTurn);
+      // console.log("turn:", this.state.turn, "countdownTurn:", this.state.countdownTurn);
       const resp = await fetch('/poll/' + this.props.gid + this.loginArgs())
       const json = await resp.json()
 
@@ -682,7 +690,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
             selectedPlayer={this.state.selectedPlayer}
             key={player.uuid}
             pid={player.id}
-            turnTimeout={this.props.turnTimeout}
+            turnTimeout={this.state.turnTimeout}
             name={player.name}
             points={player.score}
             game={this}
@@ -745,7 +753,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
             </div>
             <div id="player-area">
               <CountDown
-                seconds={this.props.turnTimeout}
+                seconds={this.state.turnTimeout}
                 ref={this.countdownRef}
                 onCountdownOver={this.handleCountdownOver} // 倒计时结束时触发此回调
                 getTurn={this.handleGetTurn}

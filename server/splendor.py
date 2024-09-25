@@ -73,7 +73,7 @@ class GameManager(object):
                 del game_map[self.uuid]
 
         self.changed[pid] = False
-        yield json.dumps({'state': self.game.dict(pid), 'result': {}, 'chat': self.chats})
+        yield json.dumps({'state': self.game.dict(pid), 'result': {}, 'chat': self.chats, 'turnTimeout': self.turn_timeout})
 
     def num_players(self):
         return self.game.num_players
