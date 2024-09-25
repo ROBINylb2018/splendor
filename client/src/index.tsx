@@ -160,7 +160,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
       // 暂停，或已结束
       if (paused || over || getTurn() < 0) return;
 
-      if (time.hours === 0 && time.minutes === 0 && time.seconds <= 10){
+      if (time.hours === 0 && time.minutes === 0 && time.seconds < 10){
         (document.getElementById("timeout") as HTMLAudioElement).play();
       }
 
@@ -501,7 +501,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
       showChat: false,
       showLog: false,
       chatNotify: false,
-      countdownTurn: -1
+      countdownTurn: 0
     } as GameState
     countdownRef: React.RefObject<{ reset: () => void }>;
 
@@ -617,6 +617,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
     }
 
     poll = async () => {
+      console.log("turn:", this.state.turn, "countdownTurn:", this.state.countdownTurn);
       const resp = await fetch('/poll/' + this.props.gid + this.loginArgs())
       const json = await resp.json()
 
@@ -624,6 +625,7 @@ let globalShowError = (resp: ServerResponse) => { return false }
         this.updateState(json)
 
         if(this.state.turn !== this.state.countdownTurn){
+          this.setState({countdownTurn: this.state.turn})
           this.handleReset()
         }
 
