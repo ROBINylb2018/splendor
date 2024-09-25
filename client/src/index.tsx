@@ -110,8 +110,8 @@ let globalShowError = (resp: ServerResponse) => { return false }
       var cName = color + "chip"
       if (color === '*') cName = "schip"
       return (
-        <div className={"gem " + cName} key={color + "_colors_" + uuid} onClick={callback.bind(game, color)}>
-          <div className="bubble" onClick={callback.bind(game, color)}>{gems[color]}</div>
+        <div className={"gem " + cName} key={color + "_colors_" + uuid} >
+          <div className="bubble" >{gems[color]}</div>
           <div className="underlay" onClick={callback.bind(game, color)}>{symbol}</div>
         </div>
       );
