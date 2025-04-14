@@ -1,0 +1,18 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: splendor\n"
+"X-Crowdin-Project-ID: 700977\n"
+"X-Crowdin-Language: id\n"
+"X-Crowdin-File: /[ROBINylb2018.splendor] master/client/src/locale/en/index.po\n"
+"X-Crowdin-File-ID: 12\n"
+"Project-Id-Version: splendor\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: Indonesian\n"
+"Language: id_ID\n"
+"PO-Revision-Date: 2024-08-03 08:19\n"
+
+#: src/index.tsx:807
+msgid "Play Splendor online with others. Enter a game name or use the suggested game name to start a game."
+msgstr ""
+
